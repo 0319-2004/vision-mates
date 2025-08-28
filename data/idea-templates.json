@@ -1,0 +1,132 @@
+[
+  {
+    "id": "social-issue",
+    "name": "社会課題解決",
+    "description": "身近な社会問題をテクノロジーで解決するプロジェクト",
+    "fields": [
+      {
+        "name": "issue",
+        "label": "解決したい課題",
+        "placeholder": "例：高齢者の買い物難民問題",
+        "type": "text"
+      },
+      {
+        "name": "target",
+        "label": "対象者",
+        "placeholder": "例：独居高齢者、介護者",
+        "type": "text"
+      },
+      {
+        "name": "solution",
+        "label": "解決方法",
+        "placeholder": "例：AI搭載買い物支援アプリ",
+        "type": "textarea"
+      }
+    ],
+    "template": "【{issue}】を解決する{target}向け{solution}プロジェクト"
+  },
+  {
+    "id": "campus-app",
+    "name": "キャンパスアプリ",
+    "description": "学生生活を便利にするアプリケーション",
+    "fields": [
+      {
+        "name": "target",
+        "label": "対象学生",
+        "placeholder": "例：新入生、理系学生",
+        "type": "text"
+      },
+      {
+        "name": "problem",
+        "label": "解決したい問題",
+        "placeholder": "例：履修登録の複雑さ",
+        "type": "text"
+      },
+      {
+        "name": "feature",
+        "label": "主要機能",
+        "placeholder": "例：AI履修アドバイザー",
+        "type": "textarea"
+      }
+    ],
+    "template": "【{target}】の{problem}を解決する{feature}アプリ"
+  },
+  {
+    "id": "open-source",
+    "name": "オープンソース",
+    "description": "開発者コミュニティに貢献するOSSプロジェクト",
+    "fields": [
+      {
+        "name": "domain",
+        "label": "技術分野",
+        "placeholder": "例：フロントエンド、AI/ML",
+        "type": "text"
+      },
+      {
+        "name": "problem",
+        "label": "解決したい問題",
+        "placeholder": "例：React開発の複雑さ",
+        "type": "text"
+      },
+      {
+        "name": "solution",
+        "label": "提供するソリューション",
+        "placeholder": "例：React開発者向けUIライブラリ",
+        "type": "textarea"
+      }
+    ],
+    "template": "【{domain}】開発者の{problem}を解決する{solution}"
+  },
+  {
+    "id": "local-community",
+    "name": "地域コミュニティ",
+    "description": "地域活性化やコミュニティ形成を支援するプロジェクト",
+    "fields": [
+      {
+        "name": "community",
+        "label": "対象コミュニティ",
+        "placeholder": "例：商店街、子育て世帯",
+        "type": "text"
+      },
+      {
+        "name": "goal",
+        "label": "目指す目標",
+        "placeholder": "例：地域の情報共有活性化",
+        "type": "text"
+      },
+      {
+        "name": "method",
+        "label": "実現方法",
+        "placeholder": "例：地域SNSプラットフォーム",
+        "type": "textarea"
+      }
+    ],
+    "template": "【{community}】の{goal}を実現する{method}プロジェクト"
+  },
+  {
+    "id": "sustainability",
+    "name": "サステナビリティ",
+    "description": "環境問題や持続可能性に関するプロジェクト",
+    "fields": [
+      {
+        "name": "environmental_issue",
+        "label": "環境問題",
+        "placeholder": "例：食品ロス、プラスチック問題",
+        "type": "text"
+      },
+      {
+        "name": "approach",
+        "label": "アプローチ",
+        "placeholder": "例：個人の行動変容",
+        "type": "text"
+      },
+      {
+        "name": "solution",
+        "label": "具体的な解決策",
+        "placeholder": "例：食品ロス削減アプリ",
+        "type": "textarea"
+      }
+    ],
+    "template": "【{environmental_issue}】を{approach}で解決する{solution}"
+  }
+] 
