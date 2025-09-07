@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabaseBrowser'
 import { toast } from 'react-hot-toast'
@@ -229,9 +230,12 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
       {/* カバー画像 */}
       {p.cover_url && (
         <div className="h-32 bg-retro-darkGray border-b-2 border-black overflow-hidden">
-          <img 
-            src={p.cover_url} 
+          <Image 
+            src={p.cover_url}
             alt={p.title}
+            width={640}
+            height={128}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="w-full h-full object-cover"
           />
         </div>
@@ -248,6 +252,7 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
               onClick={() => setShowReportModal(true)}
               className="retro-button text-xs px-2 py-1 opacity-50 hover:opacity-100 transition-opacity"
               title="通報"
+              aria-label={`プロジェクト「${p.title}」を通報する`}
             >
               ⚠️
             </button>
@@ -256,6 +261,7 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
               disabled={isSubmitting}
               className="retro-button retro-button-secondary text-xs px-3 py-1 disabled:opacity-50"
               title="ワンタップ参加"
+              aria-label="ワンタップで参加意向を上げる"
             >
               {isSubmitting ? '...' : 'JOIN'}
             </button>
@@ -293,6 +299,8 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             onClick={() => handleIntent('watch')}
             disabled={isSubmitting}
             className="flex-1 retro-button text-xs py-1 disabled:opacity-50"
+            aria-pressed={userIntent === 'watch'}
+            aria-label="見守るに設定"
           >
             👀 WATCH
           </button>
@@ -300,6 +308,8 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             onClick={() => handleIntent('raise')}
             disabled={isSubmitting}
             className="flex-1 retro-button retro-button-secondary text-xs py-1 disabled:opacity-50"
+            aria-pressed={userIntent === 'raise'}
+            aria-label="手を挙げるに設定"
           >
             ✋ RAISE
           </button>
@@ -307,6 +317,8 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             onClick={() => handleIntent('commit')}
             disabled={isSubmitting}
             className="flex-1 retro-button retro-button-primary text-xs py-1 disabled:opacity-50"
+            aria-pressed={userIntent === 'commit'}
+            aria-label="コミットに設定"
           >
             🚀 COMMIT
           </button>
@@ -318,12 +330,16 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             <button
               onClick={() => setShowCommentForm(!showCommentForm)}
               className="font-pixel text-xs text-retro-cyan hover:text-retro-yellow transition-colors"
+              aria-expanded={showCommentForm}
+              aria-controls={`comment-form-${p.id}`}
             >
               💬 COMMENT
             </button>
             {showCommentForm && (
               <div className="mt-2 p-2 retro-card bg-black border-2 border-retro-cyan">
+                <label htmlFor={`comment-input-${p.id}`} className="sr-only">コメントを入力</label>
                 <textarea
+                  id={`comment-input-${p.id}`}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="コメントを入力..."
@@ -353,12 +369,16 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             <button
               onClick={() => setShowUpdateForm(!showUpdateForm)}
               className="font-pixel text-xs text-retro-green hover:text-retro-yellow transition-colors"
+              aria-expanded={showUpdateForm}
+              aria-controls={`update-form-${p.id}`}
             >
               📝 UPDATE
             </button>
             {showUpdateForm && (
-              <div className="mt-2 p-2 retro-card bg-black border-2 border-retro-green">
+              <div id={`update-form-${p.id}`} className="mt-2 p-2 retro-card bg-black border-2 border-retro-green">
+                <label htmlFor={`update-input-${p.id}`} className="sr-only">進捗を入力</label>
                 <textarea
+                  id={`update-input-${p.id}`}
                   value={newUpdate}
                   onChange={(e) => setNewUpdate(e.target.value)}
                   placeholder="進捗を入力..."

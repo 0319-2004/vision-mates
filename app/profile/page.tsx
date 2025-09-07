@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { createClient } from '@/lib/supabaseServer'
 import { redirect } from 'next/navigation'
 import ProfileEditForm from '@/components/ProfileEditForm'
@@ -157,9 +158,12 @@ export default async function ProfilePage() {
           <div className="flex items-center space-x-6 mb-8">
             <div className="w-24 h-24 retro-card bg-retro-darkGray border-2 border-retro-orange flex items-center justify-center">
               {profile?.avatar_url ? (
-                <img 
+                <Image 
                   src={profile.avatar_url} 
                   alt="Avatar" 
+                  width={80}
+                  height={80}
+                  sizes="80px"
                   className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (

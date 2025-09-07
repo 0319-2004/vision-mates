@@ -3,14 +3,15 @@ import './globals.css'
 import ToastProvider from '@/components/ToastProvider'
 import dynamic from 'next/dynamic'
 import { startAutoModeration } from '@/lib/moderation'
+import { Press_Start_2P } from 'next/font/google'
+
+const pressStart2P = Press_Start_2P({ subsets: ['latin'], weight: '400' })
 
 const AuthButton = dynamic(() => import('@/components/AuthButton'), {
   ssr: false,
 })
 
-const AdminNavLink = dynamic(() => import('@/components/AdminNavLink'), {
-  ssr: false,
-})
+// Admin ナビリンクは未実装のため一旦除去
 
 export const metadata: Metadata = {
   title: 'VisionMates - レトロゲーム風プロジェクト共有プラットフォーム',
@@ -29,12 +30,8 @@ export default function RootLayout({
 
   return (
     <html lang="ja">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-      </head>
-      <body>
+      <head></head>
+      <body className={pressStart2P.className}>
         <div className="min-h-screen bg-retro-darkGray">
           {/* レトロゲーム風ヘッダー */}
           <header className="bg-black border-b-4 border-retro-lightGray shadow-retro">
@@ -74,7 +71,7 @@ export default function RootLayout({
                   >
                     +NEW
                   </a>
-                  <AdminNavLink />
+                  {/* AdminNavLink は未実装のため非表示 */}
                   <a
                     href="/profile"
                     className="font-pixel text-xs text-retro-lightGray hover:text-retro-purple hover:bg-retro-darkGray px-3 py-2 border border-transparent hover:border-retro-purple transition-all duration-150"

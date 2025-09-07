@@ -20,6 +20,12 @@ body {
   image-rendering: crisp-edges;
 }
 
+/* アクセシビリティ: フォーカスリングの可視性を高める */
+:focus-visible {
+  outline: 3px solid #0DB9DB;
+  outline-offset: 2px;
+}
+
 /* レトロゲーム風のボタンスタイル */
 .retro-button {
   @apply bg-retro-orange text-black font-pixel text-sm px-4 py-2 border-2 border-black shadow-retro;

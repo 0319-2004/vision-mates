@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabaseBrowser'
 import ProjectCard from '@/components/ProjectCard'
 
@@ -26,7 +26,7 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState<'newest' | 'popular'>('newest')
   const supabase = createClient()
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
@@ -261,7 +261,7 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   // 検索とソートのロジック
   useEffect(() => {
@@ -293,7 +293,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchProjects()
-  }, [])
+  }, [fetchProjects])
 
   if (loading) {
     return (

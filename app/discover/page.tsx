@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabaseBrowser'
 import SwipeCard from '@/components/SwipeCard'
 import ProjectCard from '@/components/ProjectCard'
@@ -12,7 +12,7 @@ export default function DiscoverPage() {
   const supabase = createClient()
   
   // デモプロジェクトのデータ
-  const demoProjects = [
+  const demoProjects = useMemo(() => [
     {
       id: '4',
       title: 'AIチャットボット開発',
@@ -49,7 +49,7 @@ export default function DiscoverPage() {
       comment_count: 12,
       update_count: 7,
     }
-  ]
+  ], [])
   
   // 初期プロジェクトを固定で設定（ハイドレーションエラーを防ぐため）
   const initialProject = demoProjects[0]
@@ -59,7 +59,7 @@ export default function DiscoverPage() {
     // クライアントサイドでのみランダム選択を実行
     const randomProject = demoProjects[Math.floor(Math.random() * demoProjects.length)]
     setProject(randomProject)
-  }, [])
+  }, [demoProjects])
 
   // おすすめプロジェクト（スキルマッチング）
   const recommendedProjects = userSkills.length > 0 

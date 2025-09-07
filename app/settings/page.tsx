@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabaseServer'
 import { redirect } from 'next/navigation'
 import ReferralStats from '@/components/ReferralStats'
+import Image from 'next/image'
 
 export default async function SettingsPage() {
   const supabase = createClient()
@@ -28,9 +29,12 @@ export default async function SettingsPage() {
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
             {user.user_metadata?.avatar_url && (
-              <img
+              <Image
                 src={user.user_metadata.avatar_url}
                 alt="プロフィール画像"
+                width={64}
+                height={64}
+                sizes="64px"
                 className="w-16 h-16 rounded-full"
               />
             )}

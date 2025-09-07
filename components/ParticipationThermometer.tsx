@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabaseBrowser'
 import { useAuth } from '@/hooks/useAuth'
 import AuthGuard from './AuthGuard'
@@ -33,14 +33,7 @@ export default function ParticipationThermometer({ projectId }: ParticipationThe
   const { user } = useAuth()
   const supabase = createClient()
 
-  useEffect(() => {
-    loadStats()
-    if (user) {
-      loadUserVote()
-    }
-  }, [user, projectId])
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('participation_votes')
@@ -58,9 +51,9 @@ export default function ParticipationThermometer({ projectId }: ParticipationThe
     } catch (error) {
       console.error('統計の読み込みに失敗しました:', error)
     }
-  }
+  }, [supabase, projectId])
 
-  const loadUserVote = async () => {
+  const loadUserVote = useCallback(async () => {
     if (!user) return
 
     try {
@@ -76,7 +69,16 @@ export default function ParticipationThermometer({ projectId }: ParticipationThe
     } catch (error) {
       console.error('ユーザー投票の読み込みに失敗しました:', error)
     }
-  }
+  }, [supabase, projectId, user])
+
+  useEffect(() => {
+    loadStats()
+    if (user) {
+      loadUserVote()
+    }
+  }, [user, projectId, loadStats, loadUserVote])
+
+  
 
   const handleVote = async (temperature: TemperatureLevel) => {
     if (!user) return

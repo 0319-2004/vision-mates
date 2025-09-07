@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabaseBrowser'
 import toast from 'react-hot-toast'
 
@@ -49,14 +49,7 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
     getUser()
   }, [supabase.auth])
 
-  useEffect(() => {
-    if (selectedRoom) {
-      loadMessages(selectedRoom.room_id)
-      subscribeToMessages(selectedRoom.room_id)
-    }
-  }, [selectedRoom])
-
-  const loadMessages = async (roomId: string) => {
+  const loadMessages = useCallback(async (roomId: string) => {
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -73,9 +66,9 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
       console.error('Error loading messages:', error)
       toast.error('メッセージの読み込みに失敗しました')
     }
-  }
+  }, [supabase])
 
-  const subscribeToMessages = (roomId: string) => {
+  const subscribeToMessages = useCallback((roomId: string) => {
     const subscription = supabase
       .channel(`messages:${roomId}`)
       .on(
@@ -96,7 +89,16 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
     return () => {
       subscription.unsubscribe()
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    if (selectedRoom) {
+      loadMessages(selectedRoom.room_id)
+      subscribeToMessages(selectedRoom.room_id)
+    }
+  }, [selectedRoom, loadMessages, subscribeToMessages])
+
+  
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedRoom || !user) return
@@ -134,7 +136,7 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-96">
         {/* ルーム一覧 */}
         <div className="retro-card bg-retro-darkGray border-2 border-retro-lightGray p-4">
-          <h2 className="retro-text-readable text-lg font-pixel mb-4">ルーム一覧</h2>
+          <h2 className="retro-text-readable text-lg font-pixel mb-4" id="rooms-heading">ルーム一覧</h2>
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {rooms.length === 0 ? (
               <p className="retro-text-readable-dark text-sm">参加しているルームがありません</p>
@@ -172,7 +174,7 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
               </div>
 
               {/* メッセージ一覧 */}
-              <div className="flex-1 retro-card bg-retro-darkGray border-2 border-retro-lightGray p-4 mb-4 overflow-y-auto">
+              <div className="flex-1 retro-card bg-retro-darkGray border-2 border-retro-lightGray p-4 mb-4 overflow-y-auto" role="log" aria-live="polite" aria-relevant="additions text" aria-labelledby="rooms-heading">
                 <div className="space-y-3">
                   {messages.length === 0 ? (
                     <p className="retro-text-readable-dark text-sm text-center">メッセージがありません</p>
@@ -206,6 +208,7 @@ export default function MessagesInterface({ initialRooms }: MessagesInterfacePro
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="メッセージを入力..."
+                  aria-label="メッセージを入力"
                   className="retro-textarea flex-1"
                   rows={2}
                 />

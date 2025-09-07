@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabaseBrowser'
 import { User } from '@supabase/supabase-js'
 import toast from 'react-hot-toast'
@@ -22,38 +23,7 @@ export default function AuthButton({ onAuthChange, className = '' }: AuthButtonP
   const [isSignUp, setIsSignUp] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => {
-    // 初期ユーザー状態を取得
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      onAuthChange?.(user)
-    }
-    getUser()
-
-    // 認証状態の変更を監視
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.email)
-        setUser(session?.user ?? null)
-        onAuthChange?.(session?.user ?? null)
-        
-        if (event === 'SIGNED_IN') {
-          toast.success('LOGIN SUCCESS!')
-          // 初回ログイン時にプロフィールを作成
-          if (session?.user) {
-            await createUserProfile(session.user)
-          }
-        } else if (event === 'SIGNED_OUT') {
-          toast.success('LOGOUT COMPLETE')
-        }
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth, onAuthChange])
-
-  const createUserProfile = async (user: User) => {
+  const createUserProfile = useCallback(async (user: User) => {
     try {
       // 既存のプロフィールをチェック
       const { data: existingProfile } = await supabase
@@ -101,7 +71,40 @@ export default function AuthButton({ onAuthChange, className = '' }: AuthButtonP
     } catch (error) {
       console.log('Profile creation failed:', error)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    // 初期ユーザー状態を取得
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      onAuthChange?.(user)
+    }
+    getUser()
+
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email)
+        setUser(session?.user ?? null)
+        onAuthChange?.(session?.user ?? null)
+        
+        if (event === 'SIGNED_IN') {
+          toast.success('LOGIN SUCCESS!')
+          // 初回ログイン時にプロフィールを作成
+          if (session?.user) {
+            await createUserProfile(session.user)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          toast.success('LOGOUT COMPLETE')
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth, onAuthChange, createUserProfile])
+
+  
 
   const handleGoogleLogin = async () => {
     setIsLoading(true)
@@ -363,9 +366,12 @@ export default function AuthButton({ onAuthChange, className = '' }: AuthButtonP
       <div className={`flex items-center gap-2 ${className}`}>
         <div className="flex items-center gap-2">
           {user.user_metadata?.avatar_url && (
-            <img
+            <Image
               src={user.user_metadata.avatar_url}
               alt="プロフィール画像"
+              width={24}
+              height={24}
+              sizes="24px"
               className="w-6 h-6 rounded border border-black"
             />
           )}
