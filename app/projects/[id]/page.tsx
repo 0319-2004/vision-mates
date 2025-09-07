@@ -9,6 +9,92 @@ interface PageProps {
   }
 }
 
+// デモプロジェクトのデータを取得する関数
+function getDemoProject(id: string) {
+  const demoProjects = {
+    '1': {
+      id: '1',
+      title: 'VisionMates開発',
+      purpose: 'ビジョンでつながる仲間募集プラットフォームの開発',
+      tags: ['Next.js', 'Supabase', 'TypeScript'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 5,
+      raise_count: 3,
+      commit_count: 2,
+      comment_count: 8,
+      update_count: 4,
+    },
+    '2': {
+      id: '2',
+      title: 'サステナブルな街づくり',
+      purpose: '環境に配慮した都市計画の提案と実装',
+      tags: ['環境', '都市計画', 'サステナビリティ'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 12,
+      raise_count: 7,
+      commit_count: 4,
+      comment_count: 15,
+      update_count: 6,
+    },
+    '3': {
+      id: '3',
+      title: '地域活性化プロジェクト',
+      purpose: '地方創生のための新しいビジネスモデルの構築',
+      tags: ['地域活性化', 'ビジネス', '地方創生'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 8,
+      raise_count: 5,
+      commit_count: 3,
+      comment_count: 12,
+      update_count: 5,
+    },
+    '4': {
+      id: '4',
+      title: 'AIチャットボット開発',
+      purpose: 'カスタマーサポートを自動化するAIチャットボットの開発',
+      tags: ['AI', '機械学習', 'Python'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 3,
+      raise_count: 1,
+      commit_count: 0,
+      comment_count: 2,
+      update_count: 1,
+    },
+    '5': {
+      id: '5',
+      title: 'エコフレンドリーなアプリ',
+      purpose: '環境に優しい生活をサポートするモバイルアプリの開発',
+      tags: ['React Native', '環境', 'モバイル'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 7,
+      raise_count: 4,
+      commit_count: 2,
+      comment_count: 5,
+      update_count: 3,
+    },
+    '6': {
+      id: '6',
+      title: 'オンライン学習プラットフォーム',
+      purpose: '誰でもアクセスできる無料のオンライン学習プラットフォーム',
+      tags: ['教育', 'Web開発', 'アクセシビリティ'],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      watch_count: 15,
+      raise_count: 8,
+      commit_count: 5,
+      comment_count: 12,
+      update_count: 7,
+    }
+  }
+
+  return demoProjects[id as keyof typeof demoProjects] || demoProjects['1']
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const supabase = createClient()
   
@@ -53,6 +139,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProjectPage({ params }: PageProps) {
   const supabase = createClient()
   
+  // デモプロジェクトの場合はサンプルデータを返す
+  if (params.id.startsWith('demo-') || ['1', '2', '3', '4', '5', '6'].includes(params.id)) {
+    // ローカルストレージからプロジェクトを検索
+    if (typeof window !== 'undefined' && params.id.startsWith('demo-')) {
+      const localProjects = localStorage.getItem('visionmates_projects')
+      if (localProjects) {
+        try {
+          const projects = JSON.parse(localProjects)
+          const localProject = projects.find((p: any) => p.id === params.id)
+          if (localProject) {
+            return (
+              <ProjectDetail
+                project={localProject}
+                comments={[]}
+                progressUpdates={[]}
+                intents={[]}
+              />
+            )
+          }
+        } catch (e) {
+          console.log('Failed to parse local projects:', e)
+        }
+      }
+    }
+    
+    const demoProject = getDemoProject(params.id)
+
+    return (
+      <ProjectDetail
+        project={demoProject}
+        comments={[]}
+        progressUpdates={[]}
+        intents={[]}
+      />
+    )
+  }
+
   // プロジェクト詳細を取得（RPCを試す）
   let { data: project, error: projectError } = await supabase
     .rpc('get_project_with_counts', { pid: params.id })
@@ -68,7 +191,17 @@ export default async function ProjectPage({ params }: PageProps) {
       .single()
 
     if (directError || !projectData) {
-      notFound()
+      // データベースにプロジェクトが存在しない場合はデモプロジェクトを表示
+      const demoProject = getDemoProject(params.id)
+
+      return (
+        <ProjectDetail
+          project={demoProject}
+          comments={[]}
+          progressUpdates={[]}
+          intents={[]}
+        />
+      )
     }
 
     // カウントを取得
@@ -89,7 +222,17 @@ export default async function ProjectPage({ params }: PageProps) {
   }
 
   if (!project) {
-    notFound()
+    // プロジェクトが見つからない場合はデモプロジェクトを表示
+    const demoProject = getDemoProject(params.id)
+
+    return (
+      <ProjectDetail
+        project={demoProject}
+        comments={[]}
+        progressUpdates={[]}
+        intents={[]}
+      />
+    )
   }
 
   // コメントを取得

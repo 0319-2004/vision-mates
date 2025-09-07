@@ -1,170 +1,259 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { User } from '@supabase/supabase-js'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabaseBrowser'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
-interface ProfileEditFormProps {
-  user: User
-}
-
-interface ProfileData {
+interface Profile {
+  id: string
   display_name?: string
   bio?: string
+  skills?: string[]
+  links?: {
+    github?: string
+    portfolio?: string
+    linkedin?: string
+  }
+  location?: string
+  role?: string
   avatar_url?: string
 }
 
-export default function ProfileEditForm({ user }: ProfileEditFormProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [displayName, setDisplayName] = useState('')
-  const [bio, setBio] = useState('')
+interface ProfileEditFormProps {
+  initialProfile?: Profile | null
+}
+
+export default function ProfileEditForm({ initialProfile }: ProfileEditFormProps) {
+  const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    display_name: initialProfile?.display_name || '',
+    bio: initialProfile?.bio || '',
+    skills: initialProfile?.skills?.join(', ') || '',
+    location: initialProfile?.location || '',
+    role: initialProfile?.role || '',
+    avatar_url: initialProfile?.avatar_url || '',
+    github: initialProfile?.links?.github || '',
+    portfolio: initialProfile?.links?.portfolio || '',
+    linkedin: initialProfile?.links?.linkedin || '',
+  })
+
   const supabase = createClient()
+  const router = useRouter()
 
-  useEffect(() => {
-    if (isEditing) {
-      loadProfile()
-    }
-  }, [isEditing])
-
-  const loadProfile = async () => {
-    setIsLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('display_name, bio, avatar_url')
-        .eq('id', user.id)
-        .single()
-
-      if (error && error.code !== 'PGRST116') {
-        throw error
-      }
-
-      if (data) {
-        setDisplayName(data.display_name || '')
-        setBio(data.bio || '')
-      }
-    } catch (error) {
-      console.error('プロフィール読み込みエラー:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleEdit = () => {
-    setIsEditing(true)
-  }
-
-  const handleSave = async () => {
-    if (!displayName.trim()) {
-      toast.error('表示名を入力してください')
-      return
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setIsSubmitting(true)
+
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('ログインが必要です')
+        return
+      }
+
+      // スキルを配列に変換
+      const skillsArray = formData.skills
+        .split(',')
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0)
+
+      // リンクオブジェクトを作成
+      const links = {
+        github: formData.github || null,
+        portfolio: formData.portfolio || null,
+        linkedin: formData.linkedin || null,
+      }
+
+      const profileData = {
+        display_name: formData.display_name || null,
+        bio: formData.bio || null,
+        skills: skillsArray.length > 0 ? skillsArray : null,
+        location: formData.location || null,
+        role: formData.role || null,
+        avatar_url: formData.avatar_url || null,
+        links: Object.values(links).some(link => link) ? links : null,
+        updated_at: new Date().toISOString(),
+      }
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          display_name: displayName.trim(),
-          bio: bio.trim(),
-          updated_at: new Date().toISOString()
+          ...profileData,
         })
 
-      if (error) throw error
+      if (error) {
+        console.error('Profile update error:', error)
+        toast.error('プロフィールの更新に失敗しました')
+        return
+      }
 
-      toast.success('プロフィールを更新しました')
-      setIsEditing(false)
-      
-      // ページをリロードして更新を反映
-      window.location.reload()
+      toast.success('プロフィールを更新しました！')
+      setIsOpen(false)
+      router.refresh()
     } catch (error) {
+      console.error('Profile update error:', error)
       toast.error('プロフィールの更新に失敗しました')
-      console.error(error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const handleCancel = () => {
-    setIsEditing(false)
-    setDisplayName('')
-    setBio('')
-  }
-
-  if (isEditing) {
+  if (!isOpen) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">プロフィール編集</h3>
-        
-        {isLoading ? (
-          <div className="text-center py-4">
-            <p className="text-gray-500">読み込み中...</p>
-          </div>
-        ) : (
-          <>
-            <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
-                表示名 *
-              </label>
-              <input
-                type="text"
-                id="displayName"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="表示名を入力"
-                maxLength={50}
-              />
-            </div>
-            <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                自己紹介
-              </label>
-              <textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="自己紹介を入力（任意）"
-                maxLength={200}
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                {bio.length}/200文字
-              </p>
-            </div>
-            <div className="flex space-x-2 pt-2">
-              <button
-                onClick={handleSave}
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-              >
-                {isSubmitting ? '保存中...' : '保存'}
-              </button>
-              <button
-                onClick={handleCancel}
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
-              >
-                キャンセル
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="retro-button retro-button-primary text-xs px-4 py-2"
+      >
+        プロフィール編集
+      </button>
     )
   }
 
   return (
-    <button
-      onClick={handleEdit}
-      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-    >
-      プロフィール編集
-    </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="retro-card bg-black border-2 border-retro-cyan p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="retro-title text-xl text-retro-cyan">プロフィール編集</h2>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="retro-button text-xs px-3 py-1"
+          >
+            CLOSE
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="retro-label">表示名</label>
+            <input
+              type="text"
+              value={formData.display_name}
+              onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+              placeholder="表示名を入力"
+              className="retro-input w-full"
+            />
+          </div>
+
+          <div>
+            <label className="retro-label">自己紹介</label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              placeholder="自己紹介を入力"
+              className="retro-textarea w-full"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="retro-label">スキル（カンマ区切り）</label>
+            <input
+              type="text"
+              value={formData.skills}
+              onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+              placeholder="Next.js, TypeScript, React"
+              className="retro-input w-full"
+            />
+          </div>
+
+          <div>
+            <label className="retro-label">所在地</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              placeholder="東京都、大阪府など"
+              className="retro-input w-full"
+            />
+          </div>
+
+          <div>
+            <label className="retro-label">役割</label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="retro-input w-full"
+            >
+              <option value="">選択してください</option>
+              <option value="student">学生</option>
+              <option value="pro">プロ</option>
+              <option value="founder">起業家</option>
+              <option value="freelancer">フリーランサー</option>
+              <option value="other">その他</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="retro-label">アバター画像URL</label>
+            <input
+              type="url"
+              value={formData.avatar_url}
+              onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+              placeholder="https://example.com/avatar.jpg"
+              className="retro-input w-full"
+            />
+          </div>
+
+          <div className="border-t border-retro-lightGray pt-4">
+            <h3 className="retro-text-readable text-sm font-pixel mb-3">🔗 リンク</h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="retro-label">GitHub</label>
+                <input
+                  type="url"
+                  value={formData.github}
+                  onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                  placeholder="https://github.com/username"
+                  className="retro-input w-full"
+                />
+              </div>
+
+              <div>
+                <label className="retro-label">Portfolio</label>
+                <input
+                  type="url"
+                  value={formData.portfolio}
+                  onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
+                  placeholder="https://your-portfolio.com"
+                  className="retro-input w-full"
+                />
+              </div>
+
+              <div>
+                <label className="retro-label">LinkedIn</label>
+                <input
+                  type="url"
+                  value={formData.linkedin}
+                  onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                  placeholder="https://linkedin.com/in/username"
+                  className="retro-input w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="retro-button retro-button-primary text-xs px-4 py-2 disabled:opacity-50"
+            >
+              {isSubmitting ? '保存中...' : '保存'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="retro-button text-xs px-4 py-2"
+            >
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
-} 
+}

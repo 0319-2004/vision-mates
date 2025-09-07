@@ -11,6 +11,8 @@ import {
   ShareData
 } from '@/lib/share'
 import InstagramModal from './InstagramModal'
+import { awardShareBadge } from '@/lib/badges'
+import toast from 'react-hot-toast'
 
 interface ShareButtonsProps {
   projectId: string
@@ -54,28 +56,41 @@ export default function ShareButtons({
     }
   }
 
+  const handleShare = async (source: string) => {
+    if (userId) {
+      const badgeAwarded = await awardShareBadge(userId)
+      if (badgeAwarded) {
+        toast.success('🏆 初シェアバッジを獲得しました！')
+      }
+    }
+  }
+
   const handleCopy = async () => {
     const shareData = createShareData('copy')
     const success = await copyToClipboard(shareData.url)
     if (success) {
       setCopySuccess(true)
       setTimeout(() => setCopySuccess(false), 2000)
+      await handleShare('copy')
     }
   }
 
-  const handleLineShare = () => {
+  const handleLineShare = async () => {
     const shareData = createShareData('line')
     shareToLine(shareData.url)
+    await handleShare('line')
   }
 
-  const handleLinkedInShare = () => {
+  const handleLinkedInShare = async () => {
     const shareData = createShareData('linkedin')
     shareToLinkedIn(shareData.url)
+    await handleShare('linkedin')
   }
 
   const handleInstagramShare = async () => {
     const shareData = createShareData('webshare')
     await shareToInstagram(shareData)
+    await handleShare('instagram')
   }
 
   return (

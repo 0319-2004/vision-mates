@@ -1,33 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+  --retro-bg: #2A2A2A;
+  --retro-surface: #1a1a1a;
+  --retro-border: #000000;
+  --retro-text: #E0E0E0;
+  --retro-accent: #FF6B35;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  background: var(--retro-bg);
+  color: var(--retro-text);
+  font-family: 'Press Start 2P', monospace;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* レトロゲーム風のボタンスタイル */
+.retro-button {
+  @apply bg-retro-orange text-black font-pixel text-sm px-4 py-2 border-2 border-black shadow-retro;
+  @apply hover:bg-retro-yellow hover:shadow-retro-pressed transform hover:translate-x-1 hover:translate-y-1;
+  @apply active:shadow-none active:translate-x-2 active:translate-y-2;
+  transition: all 0.1s ease;
+}
+
+.retro-button-primary {
+  @apply bg-retro-green text-white;
+}
+
+.retro-button-secondary {
+  @apply bg-retro-cyan text-black;
+}
+
+.retro-button-danger {
+  @apply bg-retro-red text-white;
+}
+
+/* レトロゲーム風のカードスタイル */
+.retro-card {
+  @apply bg-retro-darkGray border-4 border-black shadow-retro-lg p-4;
+  background-image: 
+    linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%),
+    linear-gradient(-45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%);
+  background-size: 8px 8px;
+}
+
+/* レトロゲーム風のテキスト */
+.retro-title {
+  @apply font-pixel text-retro-yellow;
+  text-shadow: 
+    2px 2px 0px #000,
+    4px 4px 0px rgba(0,0,0,0.3);
+}
+
+.retro-subtitle {
+  @apply font-pixel text-retro-cyan text-sm;
+}
+
+/* ブリンク効果 */
+.retro-blink {
+  @apply animate-blink;
+}
+
+/* グロー効果 */
+.retro-glow {
+  @apply animate-glow;
+}
+
+/* ピクセル風のボーダー */
+.pixel-border {
+  border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m0 0h100v100h-100z' fill='none' stroke='%23000' stroke-width='4'/%3e%3c/svg%3e") 4;
+}
+
+/* 8ビット風のグラデーション */
+.retro-gradient {
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    90deg,
+    #FF6B35 0%,
+    #F7931E 25%,
+    #7CB518 50%,
+    #0DB9DB 75%,
+    #7B68EE 100%
+  );
+  background-size: 400% 400%;
+  animation: retroGradient 4s ease infinite;
+}
+
+@keyframes retroGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* レトロ風のスクロールバー */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--retro-surface);
+  border: 2px solid black;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--retro-accent);
+  border: 2px solid black;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--retro-text);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* フォーム要素の可読性向上 */
+.retro-input {
+  @apply px-3 py-2 border-2 border-retro-lightGray bg-black text-white font-pixel text-sm;
+  @apply focus:border-retro-cyan focus:outline-none focus:ring-2 focus:ring-retro-cyan focus:ring-opacity-50;
+  @apply placeholder:text-gray-400 placeholder:opacity-70;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.retro-label {
+  @apply font-pixel text-sm text-white mb-2 block;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+
+.retro-textarea {
+  @apply px-3 py-2 border-2 border-retro-lightGray bg-black text-white font-pixel text-sm;
+  @apply focus:border-retro-cyan focus:outline-none focus:ring-2 focus:ring-retro-cyan focus:ring-opacity-50;
+  @apply placeholder:text-gray-400 placeholder:opacity-70;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* フォームの背景を少し明るく */
+.retro-form-bg {
+  @apply bg-gray-900 bg-opacity-80;
+  backdrop-filter: blur(4px);
+}
+
+/* テキストの可読性向上 */
+.retro-text-readable {
+  @apply text-white;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.3px;
+  line-height: 1.5;
+}
+
+.retro-text-readable-dark {
+  @apply text-gray-200;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.3px;
+  line-height: 1.5;
 } 

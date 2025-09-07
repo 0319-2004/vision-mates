@@ -5,6 +5,10 @@ import { Project, Comment, ProgressUpdate, Intent, IntentLevel } from '@/types'
 import { createClient } from '@/lib/supabaseBrowser'
 import { commentSchema, progressUpdateSchema, intentSchema } from '@/lib/schemas'
 import ShareButtons from './ShareButtons'
+import ReactionButton from './ReactionButton'
+import { checkFirstCommentBadge, checkFirstUpdateBadge, awardShareBadge } from '@/lib/badges'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 interface ProjectDetailProps {
   project: Project
@@ -28,6 +32,50 @@ export default function ProjectDetail({
   const [error, setError] = useState('')
 
   const supabase = createClient()
+  const router = useRouter()
+
+  const handleCreateThread = async () => {
+    try {
+      setIsSubmitting(true)
+      
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('ログインが必要です')
+        return
+      }
+
+      // ルームを作成
+      const { data: room, error: roomError } = await supabase
+        .from('rooms')
+        .insert({
+          name: `${project.title} - スレッド`,
+          project_id: project.id,
+          created_by: user.id,
+        })
+        .select()
+        .single()
+
+      if (roomError) throw roomError
+
+      // 作成者をルームメンバーに追加
+      const { error: memberError } = await supabase
+        .from('room_members')
+        .insert({
+          room_id: room.id,
+          user_id: user.id,
+        })
+
+      if (memberError) throw memberError
+
+      toast.success('スレッドを作成しました！')
+      router.push('/messages')
+    } catch (error) {
+      console.error('Error creating thread:', error)
+      toast.error('スレッドの作成に失敗しました')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   const handleAddComment = async () => {
     try {
@@ -63,6 +111,12 @@ export default function ProjectDetail({
 
       setComments([data, ...comments])
       setNewComment('')
+
+      // バッジチェック
+      const badgeAwarded = await checkFirstCommentBadge(user.id)
+      if (badgeAwarded) {
+        toast.success('🏆 初コメントバッジを獲得しました！')
+      }
     } catch (err) {
       setError('コメントの投稿に失敗しました')
       console.error(err)
@@ -105,6 +159,12 @@ export default function ProjectDetail({
 
       setProgressUpdates([data, ...progressUpdates])
       setNewProgress('')
+
+      // バッジチェック
+      const badgeAwarded = await checkFirstUpdateBadge(user.id)
+      if (badgeAwarded) {
+        toast.success('🏆 初進捗バッジを獲得しました！')
+      }
     } catch (err) {
       setError('進捗の投稿に失敗しました')
       console.error(err)
@@ -239,6 +299,18 @@ export default function ProjectDetail({
             projectDescription={project.purpose}
           />
         </div>
+
+        {/* スレッド作成 */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">プロジェクトスレッド</h3>
+          <button
+            onClick={handleCreateThread}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? '作成中...' : 'スレッドを作成'}
+          </button>
+        </div>
       </div>
 
       {/* 進捗更新 */}
@@ -331,7 +403,10 @@ export default function ProjectDetail({
                       {new Date(update.created_at).toLocaleString('ja-JP')}
                     </span>
                   </div>
-                  <p className="text-gray-700">{update.text}</p>
+                  <p className="text-gray-700 mb-2">{update.text}</p>
+                  <div className="flex items-center gap-2">
+                    <ReactionButton targetType="update" targetId={update.id} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -369,7 +444,10 @@ export default function ProjectDetail({
                       {new Date(comment.created_at).toLocaleString('ja-JP')}
                     </span>
                   </div>
-                  <p className="text-gray-700">{comment.text}</p>
+                  <p className="text-gray-700 mb-2">{comment.text}</p>
+                  <div className="flex items-center gap-2">
+                    <ReactionButton targetType="comment" targetId={comment.id} />
+                  </div>
                 </div>
               ))}
             </div>

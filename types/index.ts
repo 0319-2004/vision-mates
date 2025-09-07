@@ -4,7 +4,7 @@ export interface Project {
   purpose: string
   tags: string[]
   created_at: string
-  updated_at: string
+  updated_at?: string
 }
 
 export interface ProjectWithCounts extends Project {
