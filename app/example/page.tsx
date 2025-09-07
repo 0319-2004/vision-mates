@@ -1,4 +1,9 @@
-import ParticipationThermometer from '@/components/ParticipationThermometer'
+import dynamic from 'next/dynamic'
+
+const ParticipationThermometer = dynamic(
+  () => import('@/components/ParticipationThermometer'),
+  { ssr: false }
+)
 
 export default function ExamplePage() {
   return (

@@ -1,15 +1,13 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import ToastProvider from '@/components/ToastProvider'
 import dynamic from 'next/dynamic'
-import { startAutoModeration } from '@/lib/moderation'
 import { Press_Start_2P } from 'next/font/google'
 
 const pressStart2P = Press_Start_2P({ subsets: ['latin'], weight: '400' })
 
-const AuthButton = dynamic(() => import('@/components/AuthButton'), {
-  ssr: false,
-})
+const AuthButton = dynamic(() => import('@/components/AuthButton'), { ssr: false })
+const ToastProvider = dynamic(() => import('@/components/ToastProvider'), { ssr: false })
+const AutoModerationClient = dynamic(() => import('@/components/AutoModerationClient'), { ssr: false })
 
 // Admin ナビリンクは未実装のため一旦除去
 
@@ -23,11 +21,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // 自動モデレーションシステムを開始
-  if (typeof window !== 'undefined') {
-    startAutoModeration()
-  }
-
   return (
     <html lang="ja">
       <head></head>
@@ -109,6 +102,7 @@ export default function RootLayout({
           <div className="h-1 bg-gradient-to-r from-retro-purple via-retro-cyan via-retro-green via-retro-yellow via-retro-orange to-retro-red"></div>
         </div>
         <ToastProvider />
+        <AutoModerationClient />
       </body>
     </html>
   )
