@@ -13,23 +13,38 @@ interface PageProps {
 export default async function ThreadsPage({ params }: PageProps) {
   const supabase = createClient()
   
-  // プロジェクト情報を取得
-  const { data: project, error: projectError } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('id', params.id)
-    .single()
+  // デモIDの場合はダミープロジェクトを返して404を回避
+  const isDemoId = params.id.startsWith('demo-') || ['1','2','3','4','5','6'].includes(params.id)
+  let project: any = null
+  if (isDemoId) {
+    project = {
+      id: params.id,
+      title: 'デモプロジェクト',
+    }
+  } else {
+    // プロジェクト情報を取得
+    const { data: fetchedProject, error: projectError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', params.id)
+      .single()
 
-  if (projectError || !project) {
-    notFound()
+    if (projectError || !fetchedProject) {
+      notFound()
+    }
+    project = fetchedProject
   }
 
-  // スレッド一覧を取得
-  const { data: threads } = await supabase
-    .from('threads')
-    .select('*')
-    .eq('project_id', params.id)
-    .order('created_at', { ascending: false })
+  // スレッド一覧を取得（デモIDの場合は空配列）
+  const threads = isDemoId
+    ? []
+    : (
+      await supabase
+        .from('threads')
+        .select('*')
+        .eq('project_id', params.id)
+        .order('created_at', { ascending: false })
+    ).data
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

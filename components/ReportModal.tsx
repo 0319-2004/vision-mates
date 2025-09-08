@@ -74,14 +74,15 @@ export default function ReportModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="report-title">
       <div className="retro-card bg-black border-2 border-retro-cyan max-w-md w-full">
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-pixel text-sm text-retro-cyan">REPORT</h3>
+            <h3 id="report-title" className="font-pixel text-sm text-retro-cyan">REPORT</h3>
             <button
               onClick={onClose}
-              className="retro-button text-xs px-2 py-1"
+              aria-label="通報モーダルを閉じる"
+              className="retro-button text-xs px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
             >
               CLOSE
             </button>
@@ -107,7 +108,7 @@ export default function ReportModal({
                       value={reason.value}
                       checked={selectedReason === reason.value}
                       onChange={(e) => setSelectedReason(e.target.value)}
-                      className="mr-2 accent-retro-cyan"
+                      className="mr-2 accent-retro-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
                     />
                     <span className="retro-text-readable-dark text-xs">
                       {reason.label}
@@ -125,7 +126,7 @@ export default function ReportModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="詳細を入力してください..."
-                className="retro-textarea w-full"
+                className="retro-textarea w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
                 rows={3}
               />
             </div>
@@ -133,14 +134,14 @@ export default function ReportModal({
             <div className="flex gap-2">
               <button
                 onClick={onClose}
-                className="flex-1 retro-button text-xs py-2"
+                className="flex-1 retro-button text-xs py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
               >
                 CANCEL
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !selectedReason}
-                className="flex-1 retro-button retro-button-danger text-xs py-2 disabled:opacity-50"
+                className="flex-1 retro-button retro-button-danger text-xs py-2 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
               >
                 {isSubmitting ? 'SUBMITTING...' : 'REPORT'}
               </button>

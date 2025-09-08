@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import ProjectDetail from '@/components/ProjectDetail'
 
+export const revalidate = 300
+
 interface PageProps {
   params: {
     id: string

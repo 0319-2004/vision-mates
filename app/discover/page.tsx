@@ -1,5 +1,6 @@
 import ProjectCard from '@/components/ProjectCard'
-import RandomSwipeCard from '@/components/RandomSwipeCard'
+import dynamic from 'next/dynamic'
+const RandomSwipeCard = dynamic(() => import('@/components/RandomSwipeCard'), { ssr: false })
 
 export const revalidate = 3600
 
@@ -57,13 +58,13 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-retro-darkGray">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="retro-title text-3xl text-retro-cyan mb-8 text-center">発見</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <h1 className="retro-title text-2xl sm:text-3xl text-retro-cyan mb-6 sm:mb-8 text-center">発見</h1>
         
         {/* おすすめプロジェクト（デモ表示） */}
-        <div className="mb-12">
-          <h2 className="retro-text-readable text-xl font-pixel mb-6">🎯 おすすめ</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 sm:mb-12">
+          <h2 className="retro-text-readable text-lg sm:text-xl font-pixel mb-4 sm:mb-6">🎯 おすすめ</h2>
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {recommendedProjects.map((project) => (
               <ProjectCard key={project.id} p={project} />
             ))}
@@ -71,9 +72,9 @@ export default function DiscoverPage() {
         </div>
 
         {/* 今週の注目 */}
-        <div className="mb-12">
-          <h2 className="retro-text-readable text-xl font-pixel mb-6">🔥 今週の注目</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 sm:mb-12">
+          <h2 className="retro-text-readable text-lg sm:text-xl font-pixel mb-4 sm:mb-6">🔥 今週の注目</h2>
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {weeklyPopularProjects.map((project) => (
               <ProjectCard key={project.id} p={project} />
             ))}
@@ -81,8 +82,8 @@ export default function DiscoverPage() {
         </div>
 
         {/* スワイプカード（ランダム選択はクライアント側で実行） */}
-        <div className="retro-card bg-black border-2 border-retro-orange p-6">
-          <h2 className="retro-text-readable text-xl font-pixel mb-6 text-center">🎲 ランダム発見</h2>
+        <div className="retro-card bg-black border-2 border-retro-orange p-4 sm:p-6">
+          <h2 className="retro-text-readable text-lg sm:text-xl font-pixel mb-4 sm:mb-6 text-center">🎲 ランダム発見</h2>
           <div className="max-w-md mx-auto" suppressHydrationWarning>
             <RandomSwipeCard demoProjects={demoProjects} />
           </div>

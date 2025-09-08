@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabaseBrowser'
 import ProjectCard from '@/components/ProjectCard'
 
@@ -362,15 +363,15 @@ export default function HomePage() {
 
           {/* レトロ風ナビゲーションボタン */}
           <div className="flex justify-center space-x-4 mb-8">
-            <button className="retro-button retro-button-primary">
+            <Link href="/seeds/new" className="retro-button retro-button-primary">
               🎮 PLAY
-            </button>
-            <button className="retro-button retro-button-secondary">
+            </Link>
+            <Link href="/profile" className="retro-button retro-button-secondary">
               📊 STATS
-            </button>
-            <button className="retro-button">
+            </Link>
+            <Link href="/settings" className="retro-button">
               ⚙️ OPTIONS
-            </button>
+            </Link>
           </div>
         </div>
 

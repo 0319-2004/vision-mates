@@ -14,26 +14,48 @@ interface PageProps {
 export default async function ThreadPage({ params }: PageProps) {
   const supabase = createClient()
   
-  // スレッド情報を取得
-  const { data: thread, error: threadError } = await supabase
-    .from('threads')
-    .select('*')
-    .eq('id', params.threadId)
-    .single()
+  // デモID/スレッドIDの場合はフォールバックで表示
+  const isDemo =
+    params.id.startsWith('demo-') ||
+    ['1', '2', '3', '4', '5', '6'].includes(params.id) ||
+    params.threadId.startsWith('demo-')
 
-  if (threadError || !thread) {
-    notFound()
+  let thread: any = null
+  if (isDemo) {
+    thread = {
+      id: params.threadId,
+      project_id: params.id,
+      title: 'デモスレッド',
+      created_by: 'demo-user',
+      created_at: new Date().toISOString(),
+    }
+  } else {
+    // スレッド情報を取得
+    const { data: fetchedThread, error: threadError } = await supabase
+      .from('threads')
+      .select('*')
+      .eq('id', params.threadId)
+      .single()
+
+    if (threadError || !fetchedThread) {
+      notFound()
+    }
+    thread = fetchedThread
   }
 
-  // メッセージ一覧を取得
-  const { data: messages } = await supabase
-    .from('messages')
-    .select(`
-      *,
-      user:users(email)
-    `)
-    .eq('thread_id', params.threadId)
-    .order('created_at', { ascending: false })
+  // メッセージ一覧を取得（デモは空配列）
+  const messages = isDemo
+    ? []
+    : (
+      await supabase
+        .from('messages')
+        .select(`
+          *,
+          user:users(email)
+        `)
+        .eq('thread_id', params.threadId)
+        .order('created_at', { ascending: false })
+    ).data
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

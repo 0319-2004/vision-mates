@@ -70,9 +70,9 @@ export default function CreateRoomForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 retro-form-bg p-4 rounded-md">
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="title" className="retro-label">
           ルーム名
         </label>
         <input
@@ -81,7 +81,7 @@ export default function CreateRoomForm() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="例：プロジェクトAの集中作業"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="retro-input w-full"
           maxLength={100}
         />
       </div>
@@ -89,7 +89,7 @@ export default function CreateRoomForm() {
       <button
         type="submit"
         disabled={isSubmitting || !title.trim()}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full retro-button retro-button-primary disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? '作成中...' : 'ルームを作成'}
       </button>

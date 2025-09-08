@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabaseServer'
 import { redirect } from 'next/navigation'
-import MessagesInterface from '@/components/MessagesInterface'
+import NextDynamic from 'next/dynamic'
+export const dynamic = 'force-dynamic'
+const MessagesInterface = NextDynamic(() => import('@/components/MessagesInterface'), { ssr: false })
 
 export default async function MessagesPage() {
   const supabase = createClient()

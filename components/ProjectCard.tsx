@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabaseBrowser'
 import { toast } from 'react-hot-toast'
-import ReportModal from './ReportModal'
+const ReportModal = dynamic(() => import('./ReportModal'), { ssr: false })
 
 interface ProjectCardProps {
   p: {
@@ -250,7 +251,7 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
           <div className="flex gap-2">
             <button
               onClick={() => setShowReportModal(true)}
-              className="retro-button text-xs px-2 py-1 opacity-50 hover:opacity-100 transition-opacity"
+              className="retro-button text-xs px-2 py-1 opacity-50 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
               title="通報"
               aria-label={`プロジェクト「${p.title}」を通報する`}
             >
@@ -267,7 +268,8 @@ export default function ProjectCard({ p, onChanged }: ProjectCardProps) {
             </button>
             <Link
               href={`/projects/${p.id}`}
-              className="retro-button retro-button-primary text-xs px-3 py-1"
+              prefetch={false}
+              className="retro-button retro-button-primary text-xs px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-retro-cyan"
             >
               ENTER
             </Link>

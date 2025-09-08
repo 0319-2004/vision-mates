@@ -112,14 +112,18 @@ export default function SwipeCard({ project }: SwipeCardProps) {
         <button
           onClick={handleSkip}
           disabled={isLoading}
-          className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="このプロジェクトをスキップする"
+          title="スキップ"
+          className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
           スキップ
         </button>
         <button
           onClick={handleWatch}
           disabled={isLoading}
-          className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="このプロジェクトを気になるに追加する"
+          title="気になる"
+          className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
           👀 気になる
         </button>
@@ -127,9 +131,9 @@ export default function SwipeCard({ project }: SwipeCardProps) {
 
       {/* ログイン促しモーダル */}
       {showLoginPrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="login-prompt-title">
           <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 id="login-prompt-title" className="text-lg font-semibold text-gray-900 mb-4">
               ログインが必要です
             </h3>
             <p className="text-gray-600 mb-6">
@@ -138,13 +142,15 @@ export default function SwipeCard({ project }: SwipeCardProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLoginPrompt(false)}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                aria-label="ログインせずに閉じる"
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
                 キャンセル
               </button>
               <a
                 href="/auth/login"
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-center"
+                aria-label="ログインページへ移動"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
                 ログイン
               </a>
